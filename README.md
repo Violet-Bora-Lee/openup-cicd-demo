@@ -114,11 +114,13 @@ Commit. Actions 탭에서 다시 초록불 확인.
 
 ## 6. (강사 시연) Copilot CLI 로 고치기 (블록 1·2 연결)
 
-블록 1에서 본 흐름의 변형:
+블록 1에서 본 흐름의 변형. 새 GitHub Copilot CLI(`@github/copilot`) 사용:
 
-1. 강사 노트북에서 `gh copilot suggest "이 jest 실패 메시지를 분석하고 어떤 줄이 잘못됐는지 알려줘"`
+1. 강사 노트북에서 `copilot -p "이 jest 실패 메시지를 분석하고 어떤 줄이 잘못됐는지 알려줘"`
 2. CLI 출력 → 강사가 사람의 시각으로 검토 → 적용 여부 판단
 3. push → 초록불
+
+> 설치: `npm install -g @github/copilot` (Node.js 22+) · 또는 `brew install copilot-cli` / `winget install GitHub.Copilot`
 
 > 휴먼인더루프 한 줄 요약:
 > **"AI가 코드를 쓰는 시대일수록, 무엇을 검증할지 사람이 더 명확하게 정의해야 한다."**
