@@ -1,3 +1,22 @@
+# 📌 이 파일의 역할: "GitHub Actions CI 파이프라인 정의"
+#
+# 🤖 CI(Continuous Integration)란?
+#   → 누군가 코드를 push하거나 PR을 올릴 때마다,
+#      서버가 자동으로 lint와 테스트를 돌려주는 자동화 시스템.
+#   → 로컬에서 깜빡한 실수를 막아주는 "공동 안전망" 역할.
+#
+# 🚦 이 파일이 트리거되는 시점:
+#   - main 브랜치에 push 했을 때
+#   - main 브랜치로 가는 PR이 열리거나 업데이트될 때
+#
+# 🛠 실행 순서 (위에서 아래로):
+#   1) 레포 코드 받기 (checkout)
+#   2) Node.js 20 설치 + npm 캐시 활성화
+#   3) npm ci 로 의존성 설치 (package-lock.json 기준 정확 설치)
+#   4) npm run lint  → 사실은 TypeScript 타입 체크 (tsc --noEmit)
+#   5) npm test      → Jest 테스트 실행
+#   6) coverage 리포트를 아티팩트로 업로드 (실패해도 always 실행)
+
 name: CI
 
 on:
@@ -11,28 +30,38 @@ jobs:
     name: Lint + Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
+      # 매트릭스로 여러 Node 버전 테스트 가능 (지금은 20만)
+      # 예: node: [18, 20, 22] 로 늘리면 3개 환경에서 병렬 실행
       matrix:
         node: [20]
 
     steps:
+      # ① 레포의 코드를 러너 안으로 가져온다
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ② Node.js 설치 + npm 캐시 활성화 (두 번째 실행부터 빨라짐)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           cache: npm
 
+      # ③ 의존성 설치 (package-lock.json 기준의 정확 설치)
       - name: Install dependencies
         run: npm ci
 
+      # ④ 린트 단계: 이름은 lint지만 사실 tsc 타입 체크
       - name: Type check
         run: npm run lint
 
+      # ⑤ 테스트 단계: Jest로 단위/통합 테스트 모두 실행
       - name: Run tests
         run: npm test
 
+      # ⑥ 커버리지 리포트 업로드
+      #    if: always() → 위 단계가 실패해도 항상 업로드 시도
+      #    if-no-files-found: ignore → 파일이 없어도 에러 안 냄
       - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@v4

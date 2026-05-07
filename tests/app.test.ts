@@ -1,3 +1,21 @@
+/**
+ * 📌 이 파일의 역할: "app.ts의 통합 테스트(Integration Test)"
+ *
+ * 🧪 통합 테스트(Integration Test)란?
+ *   → 단위 테스트가 "함수 한 개"를 검사한다면,
+ *      통합 테스트는 "여러 부품이 합쳐진 흐름"을 검사한다.
+ *   → 여기서는 검증(validate) → 추론(predict) → HTTP 응답까지 한 번에 본다.
+ *
+ * 🛠 supertest:
+ *   진짜 서버를 띄우지 않고도 Express 앱에 가짜 HTTP 요청을 보낼 수 있게 해주는 도구.
+ *   덕분에 테스트가 빠르고, 포트 충돌도 없다.
+ *
+ * ✅ 검사 대상:
+ *   - GET /health        → 200 + { status: 'ok' }
+ *   - POST /predict      → 정상 입력은 200 + score/label
+ *                        → 잘못된 입력은 400
+ */
+
 import request from 'supertest';
 import { createApp } from '../src/app';
 
