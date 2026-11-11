@@ -40,11 +40,11 @@ jobs:
     steps:
       # ① 레포의 코드를 러너 안으로 가져온다
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # ② Node.js 설치 + npm 캐시 활성화 (두 번째 실행부터 빨라짐)
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
           cache: npm
@@ -63,7 +63,10 @@ jobs:
         run: npm run lint:quality
 
       # ⑥ 테스트 단계: Jest로 단위/통합 테스트 모두 실행
+      #    if: !cancelled() → ESLint 단계가 실패해도 테스트는 돌려서
+      #    '품질 규칙 위반'과 '동작 변경'을 한 번에 구분해 볼 수 있게 한다
       - name: Run tests
+        if: ${{ !cancelled() }}
         run: npm test
 
       # ⑦ 커버리지 리포트 업로드
@@ -71,7 +74,7 @@ jobs:
       #    if-no-files-found: ignore → 파일이 없어도 에러 안 냄
       - name: Upload coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: coverage/

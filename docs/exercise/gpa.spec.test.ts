@@ -6,10 +6,20 @@
 import { calculateGpa, Course } from '../src/gpa';
 
 describe('학점 계산기 명세 (docs/gpa-spec.md)', () => {
-  it('규칙 2·3: P 과목은 평점에서 빠지고 취득 학점에는 들어간다', () => {
+  it('규칙 1: 등급마다 4.5 만점 평점으로 바꾼다', () => {
+    const points = { 'A+': 4.5, A0: 4.0, 'B+': 3.5, B0: 3.0, 'C+': 2.5, C0: 2.0, 'D+': 1.5, D0: 1.0, F: 0 } as const;
+
+    for (const [grade, point] of Object.entries(points)) {
+      const result = calculateGpa([{ name: '과목', credits: 3, grade: grade as keyof typeof points }]);
+      expect(result.gpa).toBe(point);
+    }
+  });
+
+  it('규칙 2·3: P·NP 과목은 평점에서 빠지고, P만 취득 학점에 들어간다', () => {
     const result = calculateGpa([
       { name: '자료구조', credits: 3, grade: 'A+' },
       { name: '사회봉사', credits: 1, grade: 'P' },
+      { name: '세미나', credits: 1, grade: 'NP' },
     ]);
 
     expect(result.gpa).toBe(4.5);
@@ -29,6 +39,7 @@ describe('학점 계산기 명세 (docs/gpa-spec.md)', () => {
   it('규칙 4: 평점 대상 과목이 없으면 gpa는 null이다', () => {
     expect(calculateGpa([]).gpa).toBeNull();
     expect(calculateGpa([{ name: '사회봉사', credits: 1, grade: 'P' }]).gpa).toBeNull();
+    expect(calculateGpa([{ name: '세미나', credits: 1, grade: 'NP' }]).gpa).toBeNull();
   });
 
   it('규칙 5: 소수 셋째 자리에서 반올림한다', () => {
