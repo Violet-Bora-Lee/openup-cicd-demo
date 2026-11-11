@@ -51,6 +51,7 @@ jobs:
 
       # ③ 의존성 설치 (package-lock.json 기준의 정확 설치)
       - name: Install dependencies
+        id: install
         run: npm ci
 
       # ④ 린트 단계: 이름은 lint지만 사실 tsc 타입 체크
@@ -59,14 +60,16 @@ jobs:
 
       # ⑤ 품질 단계: ESLint 정적 분석 (eslint.config.mjs 규칙 기준)
       #    'error' 규칙을 어기면 빨간불, 'warn' 규칙은 경고만 남기고 통과
+      #    설치가 성공했다면 타입 검사가 실패해도 ESLint는 돌린다
       - name: Code quality (ESLint)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run lint:quality
 
       # ⑥ 테스트 단계: Jest로 단위/통합 테스트 모두 실행
-      #    if: !cancelled() → ESLint 단계가 실패해도 테스트는 돌려서
-      #    '품질 규칙 위반'과 '동작 변경'을 한 번에 구분해 볼 수 있게 한다
+      #    설치가 성공했다면 타입 검사·ESLint가 실패해도 테스트는 돌려서
+      #    '타입 오류', '품질 규칙 위반', '동작 변경'을 한 번에 구분해 볼 수 있게 한다
       - name: Run tests
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm test
 
       # ⑦ 커버리지 리포트 업로드

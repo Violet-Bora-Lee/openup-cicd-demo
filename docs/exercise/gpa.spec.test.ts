@@ -43,14 +43,20 @@ describe('학점 계산기 명세 (docs/gpa-spec.md)', () => {
   });
 
   it('규칙 5: 소수 셋째 자리에서 반올림한다', () => {
-    // (4.5×3 + 3.5×2 + 3.0×1) ÷ 6 = 3.9166… → 3.92
-    const result = calculateGpa([
+    // (4.5×3 + 3.5×2 + 3.0×1) ÷ 6 = 3.9166… → 3.92 (버림이면 3.91)
+    const roundUp = calculateGpa([
       { name: '자료구조', credits: 3, grade: 'A+' },
       { name: '운영체제', credits: 2, grade: 'B+' },
       { name: '글쓰기', credits: 1, grade: 'B0' },
     ]);
+    expect(roundUp.gpa).toBe(3.92);
 
-    expect(result.gpa).toBe(3.92);
+    // (4.0×2 + 3.5×1) ÷ 3 = 3.8333… → 3.83 (올림이면 3.84)
+    const roundDown = calculateGpa([
+      { name: '알고리즘', credits: 2, grade: 'A0' },
+      { name: '글쓰기', credits: 1, grade: 'B+' },
+    ]);
+    expect(roundDown.gpa).toBe(3.83);
   });
 
   it('규칙 6: 입력 배열을 바꾸지 않는다', () => {
